@@ -19,7 +19,13 @@ const PORT = process.env.PORT || 8000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// // Create uploads directory if it doesn't exist
+// const uploadsDir = path.join(__dirname, 'uploads');
+// if (!fs.existsSync(uploadsDir)) {
+//   fs.mkdirSync(uploadsDir);
+// }
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
   dbName: 'Final-Project',

@@ -2,11 +2,37 @@ const express = require('express');
 const router = express.Router();
 const Attendance = require('../models/Attendance');
 const moment = require('moment');
+const multer = require('multer');
+const path = require('path');
 
-// POST: Save a new attendance record
-router.post('/', async (req, res) => {
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Ensure this folder exists
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+const upload = multer({ storage });
+
+// POST: Save a new attendance record with photo
+router.post('/', upload.single('photo'), async (req, res) => {
   try {
-    const { studentId, encodedTime } = req.body;
+    const {
+      studentName,
+      studentId,
+      yearLevel,
+      course,
+      dutyType,
+      room,
+      classStatus,
+      facilitatorStatus,
+      encodedTime,
+      latitude,
+      longitude,
+      address,
+    } = req.body;
 
     // Standardize encodedTime to ensure exact match (MM/DD/YYYY hh:mm A)
     const formattedTime = moment(encodedTime, 'MM/DD/YYYY hh:mm A').format('MM/DD/YYYY hh:mm A');
@@ -43,7 +69,25 @@ router.post('/', async (req, res) => {
       }
     }
 
-    const newRecord = new Attendance({ ...req.body, encodedTime: formattedTime });
+    // Include photo URL/path if uploaded
+    const photoUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
+    const newRecord = new Attendance({
+      studentName,
+      studentId,
+      yearLevel,
+      course,
+      dutyType,
+      room,
+      classStatus,
+      facilitatorStatus,
+      encodedTime: formattedTime,
+      photoUrl,
+      latitude: latitude ? parseFloat(latitude) : null,
+      longitude: longitude ? parseFloat(longitude) : null,
+      address,
+    });
+
     await newRecord.save();
     console.log(`Record saved: ${JSON.stringify(newRecord)}`);
     res.status(201).json(newRecord);
@@ -79,6 +123,7 @@ router.get('/search', async (req, res) => {
         { classStatus: { $regex: query, $options: 'i' } },
         { facilitatorStatus: { $regex: query, $options: 'i' } },
         { encodedTime: { $regex: query, $options: 'i' } },
+        { address: { $regex: query, $options: 'i' } },
       ],
     });
     res.status(200).json(records);

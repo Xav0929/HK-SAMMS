@@ -11,6 +11,10 @@ const attendanceSchema = new mongoose.Schema({
   facilitatorStatus: { type: String },
   encodedTime: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
+  photoUrl: { type: String }, // URL or path to the uploaded photo
+  latitude: { type: Number }, // Latitude of the location
+  longitude: { type: Number }, // Longitude of the location
+  address: { type: String }, // Address from reverse geocoding
 });
 
 module.exports = mongoose.model('Attendance', attendanceSchema);
