@@ -11,6 +11,8 @@ const { EMAIL_USER, EMAIL_PASS } = process.env;
 // ✅ Configure Nodemailer Transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
+   port: 465, // or 587
+  secure: true, // true for 465, false for 587
   auth: {
     user: EMAIL_USER,
     pass: EMAIL_PASS,
